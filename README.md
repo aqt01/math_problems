@@ -1,3 +1,7 @@
+## Running the server
+* python -m SimpleHTTPServer
+* Browser 127.0.0.1:8000
+
 Quintus Engine
 ==============
 
