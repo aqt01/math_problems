@@ -278,6 +278,10 @@ Q.Sprite.extend("Enemy", {
       col.obj.trigger('enemy.hit', {"enemy":this,"col":col});
       Q.audio.play('hit.mp3');
     }
+
+    console.log(this.p.id);
+    console.log(this.p.EnemyAnimations);
+    console.log(this.p.animation);
   },
 
   die: function(col) {
@@ -294,7 +298,7 @@ Q.Sprite.extend("Enemy", {
 });
 
 Q.Enemy.extend("Fly", {
-
+  id: 1
 });
 
 Q.Enemy.extend("Slime", {
