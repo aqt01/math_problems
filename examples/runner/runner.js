@@ -16,13 +16,14 @@ Q.Sprite.extend("Player",{
     this._super(p,{
       sheet: "player",
       sprite: "player",
-      collisionMask: SPRITE_BOX, 
+      collisionMask: SPRITE_BOX,
       x: 40,
       y: 555,
       standingPoints: [ [ -16, 44], [ -23, 35 ], [-23,-48], [23,-48], [23, 35 ], [ 16, 44 ]],
       duckingPoints : [ [ -16, 44], [ -23, 35 ], [-23,-10], [23,-10], [23, 35 ], [ 16, 44 ]],
       speed: 500,
-      jump: -700
+      jump: -700,
+      live:3
     });
 
     this.p.points = this.p.standingPoints;
@@ -43,11 +44,11 @@ Q.Sprite.extend("Player",{
 
     if(Q.inputs['up'] && this.p.landed > 0) {
       this.p.vy = this.p.jump;
-    } 
+    }
 
     this.p.points = this.p.standingPoints;
     if(this.p.landed) {
-      if(Q.inputs['down']) { 
+      if(Q.inputs['down']) {
         this.play("duck_right");
         this.p.points = this.p.duckingPoints;
       } else {
@@ -62,23 +63,26 @@ Q.Sprite.extend("Player",{
   }
 });
 
+
+
 Q.Sprite.extend("Box",{
+
   init: function() {
 
     var levels = [ 565, 540, 500, 450 ];
 
     var player = Q("Player").first();
     this._super({
-      x: player.p.x + Q.width + 50,
-      y: levels[Math.floor(Math.random() * 3)],
-      frame: Math.random() < 0.5 ? 1 : 0,
+      x: player.p.x + Q.width ,// + 50,
+      y: levels[0],//Math.floor(Math.random() * 3)
+      frame: Math.floor((Math.random() * 19) + 0),//  Math.random() < 0.5 ? 1 : 0
       scale: 2,
       type: SPRITE_BOX,
-      sheet: "crates",
-      vx: -600 + 200 * Math.random(),
+      sheet: "numbers",
+      vx: 0,//-600 + 200 * Math.random(),
       vy: 0,
       ay: 0,
-      theta: (300 * Math.random() + 200) * (Math.random() < 0.5 ? 1 : -1)
+      theta: 0//(300 * Math.random() + 200) * (Math.random() < 0.5 ? 1 : -1)
     });
 
 
@@ -106,10 +110,26 @@ Q.Sprite.extend("Box",{
     this.p.ay = 400;
     this.p.vy = -300;
     this.p.opacity = 0.5;
+
+    if(isPrime(this.p.frame+1)) live--;
+    if(live==0)
+    {
+     Q.stageScene("endGame",1, { label: "You Died" });
+     //alert("end");
+     window.location.reload();
+    }
   }
-  
+
 
 });
+
+function isPrime(number) {
+    var start = 2;
+    while (start <= Math.sqrt(number)) {
+        if (number % start++ < 1) return false;
+    }
+    return true;//number > 1;
+}
 
 Q.GameObject.extend("BoxThrower",{
   init: function() {
@@ -148,10 +168,23 @@ Q.scene("level1",function(stage) {
   stage.add("viewport");
 
 });
-  
-Q.load("player.json, player.png, background-wall.png, background-floor.png, crates.png, crates.json", function() {
+Q.scene('hud',function(stage) {
+  var container = stage.insert(new Q.UI.Container({
+    x: 50, y: 0
+  }));
+
+  var label = container.insert(new Q.UI.Text({x:200, y: 20,
+    label: "Score: " + stage.options.score, color: "white" }));
+
+  var live = container.insert(new Q.UI.Text({x:50, y: 20,
+    label: "Health: " + stage.options.live + '%', color: "white" }));
+//*/
+  container.fit(20);
+});
+
+Q.load("player.json, player.png, background-wall.png, background-floor.png, numbers.png, numbers.json", function() {
     Q.compileSheets("player.png","player.json");
-    Q.compileSheets("crates.png","crates.json");
+    Q.compileSheets("numbers.png","numbers.json");
     Q.animations("player", {
       walk_right: { frames: [0,1,2,3,4,5,6,7,8,9,10], rate: 1/15, flip: false, loop: true },
       jump_right: { frames: [13], rate: 1/10, flip: false },
@@ -159,7 +192,8 @@ Q.load("player.json, player.png, background-wall.png, background-floor.png, crat
       duck_right: { frames: [15], rate: 1/10, flip: false },
     });
     Q.stageScene("level1");
-  
+    Q.stageScene('hud', 3, Q('Player').first().p);
+
 });
 
 
