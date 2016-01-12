@@ -1,0 +1,264 @@
+<!--
+To change this template, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, user-scalable=no" />
+        <title></title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <script src='lib/quintus.js'></script>
+        <script src='lib/quintus_sprites.js'></script>
+        <script src='lib/quintus_scenes.js'></script>
+        <script src='lib/quintus_input.js'></script>
+        <script src='lib/quintus_anim.js'></script>
+        <script src='lib/quintus_2d.js'></script>
+        <script src='lib/quintus_touch.js'></script>
+        <script src='lib/quintus_ui.js'></script>
+    </head>
+    <body style="background-color: black;">
+        <script>
+        var Q = Quintus()
+            .include("Sprites, Scenes, Input, 2D, Touch, UI")
+            .setup({maximize: true                
+            }).touch();            
+        
+        //configuration for math operations
+        Q.state.set({ operations_min: 0, operations_max: 10 });
+        
+        //values for collision detection
+        var SPRITE_NONE = 0;
+        var SPRITE_RACER = 1;
+        var SPRITE_OTHER = 2; 
+        
+        Q.Sprite.extend("Player",{
+            init: function(p) {
+              this._super(p, {
+                  sheet: "player",                   
+                  type: SPRITE_RACER,
+                  collisionMask: SPRITE_OTHER
+              });
+              this.add('2d');
+            },
+        });
+
+        Q.Sprite.extend("Girl", {
+            init: function(p) {
+              this._super(p, { 
+                  sheet: 'girl',
+                  type: SPRITE_OTHER,
+                  collisionMask: SPRITE_OTHER
+              });
+              this.add('2d');
+              
+              this.on("hit.sprite",function(collision) {
+                  if(collision.obj.isA("Player")) {
+                    Q.stageScene("endGame",1, { label: "You Won!" }); 
+                    this.destroy();
+                  }
+                  else if(collision.obj.isA("Rival")) {
+                    Q.stageScene("endGame",1, { label: "Game Over" }); 
+                    this.destroy();
+                  }
+              });
+            }
+        });
+        
+        Q.MovingSprite.extend("Rival", {
+            init: function(p) {
+              this._super(p, {
+                  type: SPRITE_RACER,
+                  collisionMask: SPRITE_OTHER
+              });
+              this.add('2d');              
+            },
+        });
+
+        Q.scene("level1",function(stage) {
+          stage.collisionLayer(new Q.TileLayer({ dataAsset: 'level_collision.json', sheet: 'tiles', type: SPRITE_OTHER }));
+          stage.insert(new Q.TileLayer({ dataAsset: 'level_background.json', sheet: 'tiles', type: SPRITE_NONE }));
+          
+          //rivals
+          stage.insert(new Q.Rival({ x: 160, y: 112, sheet:'bluerival', vx: 40*Math.random()}));
+          stage.insert(new Q.Rival({ x: 160, y: 112, sheet:'purplerival', vx: 40*Math.random() }));
+          stage.insert(new Q.Rival({ x: 160, y: 112, sheet:'greenrival', vx: 40*Math.random() }));
+          
+          //girl
+          var girl = new Q.Girl({ x: 5000, y: 112, sheet:'girl'});
+          stage.insert(girl);
+          
+          //player
+          var player = stage.insert(new Q.Player({x: 160, y: 112}));
+          stage.add("viewport").follow(player);
+          
+          
+        });
+        
+        //answer button
+        Q.UI.AnswButton = Q.UI.Button.extend('UI.AnswButton', {
+            init: function(p) {
+                this._super(Q._defaults(p, {
+                    fill: "#FFFFFF",
+                    border: 2,
+                    shadow: 3,
+                    shadowColor: "rgba(0,0,0,0.5)",
+                    w: 40,
+                    h: 40
+                }),                     
+                function() {
+                    var currAnsw;
+                    if(this.p.answerLabel.p.label === '') {
+                        currAnsw = 0;
+                    }
+                    else {
+                        currAnsw = parseInt(this.p.answerLabel.p.label);
+                    }
+                    
+                    if(currAnsw < 1000000000) {
+                        this.p.answerLabel.p.label = ""+(currAnsw*10+parseInt(this.p.label));
+                    }
+                        
+                }
+                );
+            }
+        });
+        
+        //question area
+        Q.UI.QuestionArea = Q.UI.Text.extend('UI.QuestionArea', {
+            init: function() {
+                this._super({
+                    color: "white",
+                    x: 0,
+                    y: 0
+                });
+            },
+            generate: function() {
+                this.p.num1 = Math.floor(Math.random() * Q.state.get('operations_max')) + Q.state.get('operations_min');
+                this.p.num2 = Math.floor(Math.random() * Q.state.get('operations_max')) + Q.state.get('operations_min');
+                this.p.label = this.p.num1+' + '+this.p.num2;
+            },
+            getAnswer: function() {
+                return this.p.num1+this.p.num2;
+            }
+        });
+        
+        
+        Q.scene("calculations",function(stage) {
+            
+            //current question
+            var qContainer = stage.insert(new Q.UI.Container({
+                fill: "gray",
+                x: 221,
+                y: 325,
+                border: 2,
+                shadow: 3,
+                shadowColor: "rgba(0,0,0,0.5)",
+                w: 140,
+                h: 50
+                })
+            );
+            
+            var question = stage.insert(new Q.UI.QuestionArea(),qContainer);
+            
+            question.generate();
+            
+            //answer area
+            var aContainer = stage.insert(new Q.UI.Container({
+                fill: "#438700",
+                x: 221,
+                y: 385,
+                border: 2,
+                shadow: 3,
+                shadowColor: "rgba(0,0,0,0.5)",
+                w: 140,
+                h: 50
+                })
+            );
+            
+            var answer = stage.insert(new Q.UI.Text({ 
+                    label: "",
+                    color: "white",
+                    x: 0,
+                    y: 0
+                  }),aContainer);
+            
+            //submit answer
+            var aButton = stage.insert(new Q.UI.Button({
+                fill: "white",
+                label: "Enter",
+                x: 221,
+                y: 445,
+                border: 2,
+                shadow: 3,
+                shadowColor: "rgba(0,0,0,0.5)",
+                w: 140,
+                h: 50
+                },
+                function() {
+                    //this lines compare the correct answer with the user's answer
+                    var isCorrect = parseInt(answer.p.label) == question.getAnswer();
+                    //This generates a new question for the user
+                    question.generate();
+                    //This cleans the answer's label
+                    answer.p.label = '';
+                    var player = Q("Player",0).first();
+                    
+                    //This condition sets the new velocity of the player if the answer is correct or not
+                    if(isCorrect) {                        
+                        player.p.vx += 10;
+                    }
+                    else {
+                        player.p.vx = Math.max(0, player.p.vx - 5);
+                    }
+                })
+            );
+            
+            //buttons
+            var i;
+            for(i=1;i<10;i++) {
+                (function(i) {
+                    stage.insert(
+                        new Q.UI.AnswButton({
+                            label: i+'',
+                            y: 275+Math.ceil(i/3)*45,
+                            x: 30+parseInt((i+2)%3)*45,
+                            answerLabel: answer
+                            }
+                        )
+                    );
+                })(i);
+                stage.insert(new Q.UI.AnswButton({
+                            label: '0',
+                            y: 275+4*45,
+                            x: 30+45,     
+                            answerLabel: answer
+                            }
+                        ));
+            } 
+        });
+
+        Q.scene('endGame',function(stage) {
+          var box = stage.insert(new Q.UI.Container({
+            x: Q.width/2, y: Q.height/2, fill: "rgba(0,0,0,0.5)"
+          }));
+
+          var button = box.insert(new Q.UI.Button({ x: 0, y: 0, fill: "#CCCCCC",
+                                                   label: "Play Again" }))         
+          var label = box.insert(new Q.UI.Text({x:10, y: -10 - button.p.h, 
+                                                label: stage.options.label }));
+          button.on("click",function() {
+            window.location.href = '../racemath2/index.html';//window.location.replace("http://stackoverflow.com");//window.location.reload();
+          });
+          box.fit(20);
+        });
+
+        Q.load("marioKartSprites.gif, marioKartSprites.json, level_collision.json, level_background.json, tiles.png", function() {
+          Q.sheet("tiles","tiles.png", { tilew: 32, tileh: 32 });
+          Q.compileSheets("marioKartSprites.gif","marioKartSprites.json");
+          Q.stageScene("level1");
+          Q.stageScene("calculations",1);
+        });
+        </script>
+    </body>
+</html>
