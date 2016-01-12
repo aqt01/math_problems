@@ -25,7 +25,7 @@ and open the template in the editor.
             }).touch();            
         
         //configuration for math operations
-        Q.state.set({ operations_min: 10, operations_max: 99 });
+        Q.state.set({ operations_min: 0, operations_max: 99 });
         
         //values for collision detection
         var SPRITE_NONE = 0;
@@ -251,11 +251,15 @@ and open the template in the editor.
           }));
 
           var button = box.insert(new Q.UI.Button({ x: 0, y: 0, fill: "#CCCCCC",
-                                                   label: "Play Again" }))         
+                                                   label: "Main Menu" })) 
+
+           //var button2 = box.insert(new Q.UI.Button({ x: 0, y: 0, fill: "#CCCCCC",
+                            //                       label: "Play Again" })) 
+
           var label = box.insert(new Q.UI.Text({x:10, y: -10 - button.p.h, 
                                                 label: stage.options.label }));
           button.on("click",function() {
-            window.location.replace("http://stackoverflow.com");//window.location.reload();
+            window.location.href = '../../../index.html';//window.location.reload();
           });
           box.fit(20);
         });
