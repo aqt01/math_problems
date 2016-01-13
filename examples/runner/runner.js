@@ -63,7 +63,7 @@ Q.Sprite.extend("Player",{
   }
 });
 
-
+var locallive=1;//Q('Player').p.live;
 
 Q.Sprite.extend("Box",{
 
@@ -75,7 +75,7 @@ Q.Sprite.extend("Box",{
     this._super({
       x: player.p.x + Q.width ,// + 50,
       y: levels[0],//Math.floor(Math.random() * 3)
-      frame: Math.floor((Math.random() * 19) + 0),//  Math.random() < 0.5 ? 1 : 0
+      frame: Math.floor((Math.random() * 4) + 0),//  Math.random() < 0.5 ? 1 : 0
       scale: 2,
       type: SPRITE_BOX,
       sheet: "numbers",
@@ -104,24 +104,39 @@ Q.Sprite.extend("Box",{
   },
 
   hit: function() {
-    this.p.type = 0;
-    this.p.collisionMask = Q.SPRITE_NONE;
-    this.p.vx = 200;
-    this.p.ay = 400;
-    this.p.vy = -300;
-    this.p.opacity = 0.5;
 
-    if(isPrime(this.p.frame+1)) live--;
-    if(live==0)
-    {
-     Q.stageScene("endGame",1, { label: "You Died" });
-     //alert("end");
-     window.location.reload();
+
+    this.destroy();
+
+
+    if(isPrime(this.p.frame+1)) locallive--;
+    else {
+      scrore++;
     }
+
+    if(locallive==0)
+    {
+
+     //alert("end");
+     locallive=1;
+     var textend="Game Over!"+"\nScore:"+scrore;
+     Q.stageScene("endGame",1, {label: textend});
+
+    }
+    //alert("goa");
+    //Q.stageScene('hud', 3, Q('Player'));
+
+
+/*Q.stageScene('hud', 3, this.p);
+if (this.p.strength == 0) {
+  this.resetLevel();
+}
+    //*/
   }
 
 
 });
+var scrore=0;
 
 function isPrime(number) {
     var start = 2;
@@ -167,17 +182,36 @@ Q.scene("level1",function(stage) {
   stage.insert(new Q.Player());
   stage.add("viewport");
 
+
 });
+
+Q.scene('endGame',function(stage) {
+  var box = stage.insert(new Q.UI.Container({
+    x: Q.width/2, y: Q.height/2, fill: "rgba(0,0,0,0.5)"
+  }));
+
+  var button = box.insert(new Q.UI.Button({ x: 10+5, y: 25, fill: "#CCCCCC",
+                                           label: "Play Again" }))
+
+   //var button2 = box.insert(new Q.UI.Button({ x: 0, y: 0, fill: "#CCCCCC",
+                    //                       label: "Play Again" }))
+
+  var label = box.insert(new Q.UI.Text({x:10, y: -10 - button.p.h,
+                                        label: stage.options.label }));
+  button.on("click",function() {
+    window.location.reload();
+  });
+  box.fit(20);
+});
+
+
 Q.scene('hud',function(stage) {
   var container = stage.insert(new Q.UI.Container({
     x: 50, y: 0
   }));
 
-  var label = container.insert(new Q.UI.Text({x:200, y: 20,
-    label: "Score: " + stage.options.score, color: "white" }));
-
   var live = container.insert(new Q.UI.Text({x:50, y: 20,
-    label: "Health: " + stage.options.live + '%', color: "white" }));
+    label: "Health: " + stage.options.live , color: "white" }));
 //*/
   container.fit(20);
 });
@@ -193,6 +227,7 @@ Q.load("player.json, player.png, background-wall.png, background-floor.png, numb
     });
     Q.stageScene("level1");
     Q.stageScene('hud', 3, Q('Player').first().p);
+
 
 });
 
