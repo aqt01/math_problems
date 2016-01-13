@@ -2,5 +2,6 @@
 "greenrival":{"sx":0,"sy":128,"cols":1,"tilew":40,"tileh":32,"frames":1},
 "bluerival":{"sx":60,"sy":128,"cols":1,"tilew":40,"tileh":32,"frames":1},
 "purplerival":{"sx":100,"sy":128,"cols":1,"tilew":40,"tileh":32,"frames":1},
+"mariorival":{"sx":200,"sy":128,"cols":1,"tilew":40,"tileh":32,"frames":1},
 "flower":{"sx":128,"sy":0,"cols":1,"tilew":32,"tileh":32,"frames":1},
 "girl":{"sx":360,"sy":54,"cols":1,"tilew":40,"tileh":32,"frames":1}}
