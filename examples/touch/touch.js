@@ -4,23 +4,34 @@
 //
 // This example creates a number of random convex shapes 
 // and then adds touch and drag support to them.
-window.addEventListener('load',function(e) {
+window.addEventListener('load',function() {
 
 
   // Set up a standard Quintus instance with only the 
   // Sprites and Scene module (for the stage support) loaded.
-  var Q = window.Q = Quintus().include("Sprites, Scenes, Input, Touch");
-
+  var Q = window.Q = Quintus().include("Sprites, Scenes, Input, Touch, UI");
   Q.setup({ maximize: true })
-   .touch(Q.SPRITE_ALL);
+       .controls(true)
+      .touch(Q.SPRITE_ALL);
   // Sprite class for the randomly shapes
   //
   //
+  //
+    Q.Sprite.extend("Player",{
+        init: function(p) {
+        this._super(p, {
+        strength: 100,
+        score: 0
+        }); 
+       }
+    });
+
+
+
   Q.Sprite.extend("RandomShape", {
      init: function(p) {
        // Create a random shape (defined below)
-       p =this.createShape(p);
-
+      p =this.createShape(p);
        // Initialize the p hash
        this._super(p);
 
@@ -32,24 +43,26 @@ window.addEventListener('load',function(e) {
 
      drag: function(touch) {
        this.p.dragging = true;
-       this.p.x = touch.origX + touch.dx;
-       this.p.y = touch.origY + touch.dy;
+       //this.p.x = touch.origX + touch.dx;
+       //
+       //this.p.y = touch.origY + touch.dy;
      },
 
      touchEnd: function(touch) {
        this.p.dragging = false;
-
+        //eliminate shape
+        this.destroy()
+//        stage.options.score+=1
      },
 
      createShape: function(p) {
         var angle = Math.random()*2*Math.PI,
-            numPoints = 3 + Math.floor(Math.random()*5),
+            numPoints = 3 + Math.floor(Math.random()*15),
             minX = 0, maxX = 0,
             minY = 0, maxY = 0,
-            curX, curY;
-
+            curX, curY,
+            dy = -10
         p = p || {};
-
         p.points = [];
 
         var startAmount = 40;
@@ -57,7 +70,7 @@ window.addEventListener('load',function(e) {
         for(var i = 0;i < numPoints;i++) {
           curX = Math.floor(Math.cos(angle)*startAmount);
           curY = Math.floor(Math.sin(angle)*startAmount);
-
+          
           if(curX < minX) minX = curX;
           if(curX > maxX) maxX = curX;
 
@@ -93,16 +106,31 @@ window.addEventListener('load',function(e) {
        return p;
      },
 
+
+
      // If the mousemove event below sets the
      // hit variable, scale this sucker up a bit.
      //
      // Also move to avoid collisions with any other sprites
-     step: function(dt) {
-       if(this.p.over) {
+    
+    step: function(dt) {
+        // Falling and rolling functions
+        this.p.y +=  ( Math.floor((Math.random() * 5) + 1)) ;
+        this.p.angle += 2 ;
+
+        
+        if(this.p.over) {
+
          this.p.scale = 1.2;
        } else {
          this.p.scale = 1.;
        }
+
+        // Respawn from top
+        if(this.p.y>Q.height) {
+            this.p.y=0;
+        }
+                
 
       var maxCol = 3, collided = false, p = this.p;
       p.hit = false;
@@ -111,11 +139,11 @@ window.addEventListener('load',function(e) {
           // If we're dragging, move other objects
           // otherwise, move us
           if(this.p.dragging) { 
-            collided.obj.p.x += collided.separate[0];
-            collided.obj.p.y += collided.separate[1];
+            collided.obj.p.x += collided.separate[0] + Math.floor((Math.random() * 3) + 1);
+            collided.obj.p.y += collided.separate[1] + Math.floor((Math.random() * 3) + 1);
           } else {
-            this.p.x -= collided.separate[0];
-            this.p.y -= collided.separate[1];
+            this.p.x -= collided.separate[0] + Math.floor((Math.random() * 3) + 1) ;
+            this.p.y -= collided.separate[1] + Math.floor((Math.random() * 3) + 1);
           }
         }
         maxCol--;
@@ -128,10 +156,25 @@ window.addEventListener('load',function(e) {
   });
 
   // Number of shapes to add to the page
-  var numShapes = 5;
+  var numShapes = 10;
 
-  // Scene that actually adds shapes onto the stage
-  Q.scene("start",new Q.Scene(function(stage) {
+Q.scene('hud',function(stage) {
+  var container = stage.insert(new Q.UI.Container({
+    x: 50, y: 0
+  }));
+
+  var label = container.insert(new Q.UI.Text({x:20, y: 60,
+    label: "Score: "+stage.options.score , color: "red" }));
+
+  var strength = container.insert(new Q.UI.Text({x:20, y: 20,
+    label: "Health: " + '%', color: "red" }));
+
+  container.fit(60);
+});
+
+  // Scene that actually adds shapes onto the stage 
+ Q.scene("start",new Q.Scene(function(stage) {
+
     var shapesLeft = numShapes;
     while(shapesLeft-- > 0) {
       stage.insert(new Q.RandomShape());
@@ -140,7 +183,7 @@ window.addEventListener('load',function(e) {
 
   // Finally call `stageScene` to start the show
   Q.stageScene("start");
-
+  Q.stageScene('hud',3);
   // Render the elements
   // Turning Q.debug and Q.debugFill on will render
   // the sprites' collision meshes, which is all we want
