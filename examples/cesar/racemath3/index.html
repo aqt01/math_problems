@@ -25,7 +25,7 @@ and open the template in the editor.
             }).touch();            
         
         //configuration for math operations
-        Q.state.set({ operations_min: 0, operations_max: 99 });
+        Q.state.set({ operations_min: 0, operations_max: 10 });
         
         //values for collision detection
         var SPRITE_NONE = 0;
@@ -145,10 +145,15 @@ and open the template in the editor.
             generate: function() {
                 this.p.num1 = Math.floor(Math.random() * Q.state.get('operations_max')) + Q.state.get('operations_min');
                 this.p.num2 = Math.floor(Math.random() * Q.state.get('operations_max')) + Q.state.get('operations_min');
-                this.p.label = this.p.num1+' + '+this.p.num2;
+                
+                //This recursivly calls the method is the substration is less than zero
+                if((this.p.num1-this.p.num2) >= 0)
+                {
+                  this.p.label = this.p.num1+' - '+this.p.num2;
+                } else { this.generate(); }
             },
             getAnswer: function() {
-                return this.p.num1+this.p.num2;
+                return this.p.num1-this.p.num2;
             }
         });
         
@@ -207,6 +212,7 @@ and open the template in the editor.
                 function() {
                     //this lines compare the correct answer with the user's answer
                     var isCorrect = parseInt(answer.p.label) == question.getAnswer();
+                    //console.log(answer.p.label);
                     //This generates a new question for the user
                     question.generate();
                     //This cleans the answer's label
@@ -244,6 +250,14 @@ and open the template in the editor.
                             answerLabel: answer
                             }
                         ));
+
+               /* stage.insert(new Q.UI.AnswButton({
+                            label: '-',
+                            y: 275+4*45,
+                            x: 30,     
+                            answerLabel: answer
+                            }
+                        ));*/
             } 
         });
 
