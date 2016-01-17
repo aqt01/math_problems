@@ -82,19 +82,35 @@ and open the template in the editor.
           stage.insert(new Q.TileLayer({ dataAsset: 'level_background.json', sheet: 'tiles', type: SPRITE_NONE }));
           
           //rivals
-          stage.insert(new Q.Rival({ x: 160, y: 112, sheet:'bluerival', vx: 40*Math.random()}));
-          stage.insert(new Q.Rival({ x: 160, y: 112, sheet:'purplerival', vx: 40*Math.random() }));
-          stage.insert(new Q.Rival({ x: 160, y: 112, sheet:'greenrival', vx: 40*Math.random() }));
-          
+          var bluerival = stage.insert(new Q.Rival({ x: 160, y: 112, sheet:'bluerival', vx: 10}));
+          var purplerival = stage.insert(new Q.Rival({ x: 160, y: 112, sheet:'purplerival', vx: 10 }));
+          var greenrival = stage.insert(new Q.Rival({ x: 160, y: 112, sheet:'greenrival', vx: 10 }));
+          var mariorival = stage.insert(new Q.Rival({ x: 160, y: 112, sheet:'mariorival', vx: 10 }));
+
+
           //girl
-          var girl = new Q.Girl({ x: 5000, y: 112, sheet:'girl'});
+          var girl = new Q.Girl({ x: 8000, y: 112, sheet:'girl'});
           stage.insert(girl);
           
+
+
           //player
-          var player = stage.insert(new Q.Player({x: 160, y: 112, vx: 500}));
+          var player = stage.insert(new Q.Player({x: 160, y: 112, vx: 10}));
           stage.add("viewport").follow(player);
           
-          
+         //This updates the values of the vx of rivals every 3 seconds
+          setInterval(function() {
+            bluerival.p.vx += 7*Math.random();
+            purplerival.p.vx += 7*Math.random();
+            greenrival.p.vx += 7*Math.random();
+            mariorival.p.vx += 7*Math.random();
+
+            if(player.p.vx > 0)
+            {
+              player.p.vx -= 5;
+            }
+          }, 3000);
+
         });
         
         //answer button
@@ -238,10 +254,10 @@ and open the template in the editor.
                     
                     //This condition sets the new velocity of the player if the answer is correct or not
                     if(isCorrect) {                        
-                        player.p.vx += 10;
+                        player.p.vx += 15;
                     }
                     else {
-                        player.p.vx = Math.max(0, player.p.vx - 5);
+                        player.p.vx = Math.max(0, player.p.vx - 10);
                     }
                 })
             );
@@ -286,9 +302,10 @@ and open the template in the editor.
 
             var timeLabel = box.insert(new Q.UI.Text({x:10, y: -10 - mainMenuButton.p.h, 
                                                 label: Q.state.get("tiempo") + " segundos" }));
-            
-            
 
+            mainMenuButton.on("click",function() {
+              window.location.href = '../index.html';//window.location.replace("http://stackoverflow.com");//window.location.reload();
+            });
           }
           else 
           {
@@ -304,17 +321,9 @@ and open the template in the editor.
             });
 
             mainMenuButton.on("click",function() {
-              window.location.href = '../../../index.html';//window.location.replace("http://stackoverflow.com");//window.location.reload();
+              window.location.href = '../index.html';//window.location.replace("http://stackoverflow.com");//window.location.reload();
             });
           }
-
-          
-
-          
-          
-          
-
-          
           box.fit(20);
         });
 

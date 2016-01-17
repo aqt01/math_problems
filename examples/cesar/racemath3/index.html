@@ -85,13 +85,7 @@ and open the template in the editor.
           var greenrival = stage.insert(new Q.Rival({ x: 160, y: 112, sheet:'greenrival', vx: 10 }));
           var mariorival = stage.insert(new Q.Rival({ x: 160, y: 112, sheet:'mariorival', vx: 10 }));
 
-          //This updates the values of the vx of rivals every 3 seconds
-          setInterval(function() {
-            bluerival.p.vx += 5*Math.random();
-            purplerival.p.vx += 5*Math.random();
-            greenrival.p.vx += 5*Math.random();
-            mariorival.p.vx += 5*Math.random();
-          }, 3000);
+          
           
           //girl
           var girl = new Q.Girl({ x: 8000, y: 112, sheet:'girl'});
@@ -101,6 +95,18 @@ and open the template in the editor.
           var player = stage.insert(new Q.Player({x: 160, y: 112, vx:10}));
           stage.add("viewport").follow(player);
           
+          //This updates the values of the vx of rivals every 3 seconds
+          setInterval(function() {
+            bluerival.p.vx += 7*Math.random();
+            purplerival.p.vx += 7*Math.random();
+            greenrival.p.vx += 7*Math.random();
+            mariorival.p.vx += 7*Math.random();
+
+            if(player.p.vx > 0)
+            {
+              player.p.vx -= 5;
+            }
+          }, 3000);
           
         });
         
@@ -287,25 +293,38 @@ and open the template in the editor.
             x: Q.width/2, y: Q.height/2, fill: "rgba(0,0,0,0.5)"
           }));
 
-          var button = box.insert(new Q.UI.Button({ x: 0, y: 0, fill: "#CCCCCC",
-                                                   label: "Reintentar" })) 
+          if(stage.options.label === "¡Ganaste!")
+          {
+            var mainMenuButton = box.insert(new Q.UI.Button({ x: 0, y: 0, fill: "#CCCCCC",
+                                                   label: "Menu" }))
 
-          var mainMenuButton = box.insert(new Q.UI.Button({ x: 0, y: 10 + button.p.h, fill: "#CCCCCC",
-                                                   label: "Menu" })) 
-
-          var label = box.insert(new Q.UI.Text({x:10, y: -30 - button.p.h, 
+            var label = box.insert(new Q.UI.Text({x:10, y: -30 - mainMenuButton.p.h, 
                                                 label: stage.options.label }));
 
-          var timeLabel = box.insert(new Q.UI.Text({x:10, y: -10 - button.p.h, 
+            var timeLabel = box.insert(new Q.UI.Text({x:10, y: -10 - mainMenuButton.p.h, 
                                                 label: Q.state.get("tiempo") + " segundos" }));
-          mainMenuButton.on("click",function() {
-            window.location.href = '../../../index.html';//window.location.replace("http://stackoverflow.com");//window.location.reload();
-          });
 
-          button.on("click",function() {
-            window.location.href = '../racemath4/index.html';//window.location.reload();
-          });
-          box.fit(20);
+            mainMenuButton.on("click",function() {
+              window.location.href = '../index.html';
+            });
+          }
+          else 
+          {
+            var button = box.insert(new Q.UI.Button({ x: 0, y: 0, fill: "#CCCCCC",
+                                                   label: "Volver a jugar" })) 
+            var mainMenuButton = box.insert(new Q.UI.Button({ x: 0, y: 10 + button.p.h, fill: "#CCCCCC",
+                                                   label: "Menu" })) 
+            var label = box.insert(new Q.UI.Text({x:10, y: -30 - button.p.h, 
+                                                label: stage.options.label }));
+
+            button.on("click",function() {
+              window.location.reload();
+            });
+
+            mainMenuButton.on("click",function() {
+              window.location.href = '../../../index.html';
+            });
+          }          box.fit(20);
         });
 
         Q.load("marioKartSprites.gif, marioKartSprites.json, level_collision.json, level_background.json, tiles.png", function() {
