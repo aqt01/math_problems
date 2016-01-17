@@ -197,6 +197,35 @@ and open the template in the editor.
                     y: 0
                   }),aContainer);
             
+            var timeContainer = stage.insert(new Q.UI.Container({
+                fill: "#438700",
+                x: 150,
+                y: 150,
+                border: 2,
+                shadow: 3,
+                shadowColor: "rgba(0,0,0,0.5)",
+                w: 140,
+                h: 100
+                })
+            );
+
+            var time = stage.insert(new Q.UI.Text({ 
+                    label: "- -",
+                    color: "white",
+                    x: 0,
+                    y: 0,
+                  }),timeContainer);
+            console.log(time.p.label);
+          
+          //This updates the timer for the game
+          var count = 0;
+          setInterval(function() {
+            Q.state.set("tiempo", count);
+            time.p.label = count.toString();
+            count += 1;
+            console.log(time.p.label);
+          }, 1000);
+
             //submit answer
             var aButton = stage.insert(new Q.UI.Button({
                 fill: "white",
@@ -250,14 +279,6 @@ and open the template in the editor.
                             answerLabel: answer
                             }
                         ));
-
-               /* stage.insert(new Q.UI.AnswButton({
-                            label: '-',
-                            y: 275+4*45,
-                            x: 30,     
-                            answerLabel: answer
-                            }
-                        ));*/
             } 
         });
 
@@ -267,15 +288,22 @@ and open the template in the editor.
           }));
 
           var button = box.insert(new Q.UI.Button({ x: 0, y: 0, fill: "#CCCCCC",
-                                                   label: "Main Menu" })) 
+                                                   label: "Reintentar" })) 
 
-           //var button2 = box.insert(new Q.UI.Button({ x: 0, y: 0, fill: "#CCCCCC",
-                            //                       label: "Play Again" })) 
+          var mainMenuButton = box.insert(new Q.UI.Button({ x: 0, y: 10 + button.p.h, fill: "#CCCCCC",
+                                                   label: "Menu" })) 
 
-          var label = box.insert(new Q.UI.Text({x:10, y: -10 - button.p.h, 
+          var label = box.insert(new Q.UI.Text({x:10, y: -30 - button.p.h, 
                                                 label: stage.options.label }));
+
+          var timeLabel = box.insert(new Q.UI.Text({x:10, y: -10 - button.p.h, 
+                                                label: Q.state.get("tiempo") + " segundos" }));
+          mainMenuButton.on("click",function() {
+            window.location.href = '../../../index.html';//window.location.replace("http://stackoverflow.com");//window.location.reload();
+          });
+
           button.on("click",function() {
-            window.location.href = '../../../index.html';//window.location.reload();
+            window.location.href = '../racemath4/index.html';//window.location.reload();
           });
           box.fit(20);
         });

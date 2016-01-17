@@ -54,11 +54,13 @@ and open the template in the editor.
               
               this.on("hit.sprite",function(collision) {
                   if(collision.obj.isA("Player")) {
-                    Q.stageScene("endGame",1, { label: "You Won!" }); 
+                    Q.stageScene("endGame",1, { label: "¡Ganaste!" }); 
+                    Q.state.set("HasWon", 1);
                     this.destroy();
                   }
                   else if(collision.obj.isA("Rival")) {
-                    Q.stageScene("endGame",1, { label: "Game Over" }); 
+                    Q.stageScene("endGame",1, { label: "Perdiste.." }); 
+                    Q.state.set("HasWon", 0);
                     this.destroy();
                   }
               });
@@ -89,7 +91,7 @@ and open the template in the editor.
           stage.insert(girl);
           
           //player
-          var player = stage.insert(new Q.Player({x: 160, y: 112}));
+          var player = stage.insert(new Q.Player({x: 160, y: 112, vx: 500}));
           stage.add("viewport").follow(player);
           
           
@@ -159,6 +161,7 @@ and open the template in the editor.
                 })
             );
             
+
             var question = stage.insert(new Q.UI.QuestionArea(),qContainer);
             
             question.generate();
@@ -183,6 +186,35 @@ and open the template in the editor.
                     y: 0
                   }),aContainer);
             
+              var timeContainer = stage.insert(new Q.UI.Container({
+                fill: "#438700",
+                x: 150,
+                y: 150,
+                border: 2,
+                shadow: 3,
+                shadowColor: "rgba(0,0,0,0.5)",
+                w: 140,
+                h: 100
+                })
+            );
+
+            var time = stage.insert(new Q.UI.Text({ 
+                    label: "- -",
+                    color: "white",
+                    x: 0,
+                    y: 0,
+                  }),timeContainer);
+            console.log(time.p.label);
+          
+          //This updates the timer for the game
+          var count = 0;
+          setInterval(function() {
+            Q.state.set("tiempo", count);
+            time.p.label = count.toString();
+            count += 1;
+            console.log(time.p.label);
+          }, 1000);
+
             //submit answer
             var aButton = stage.insert(new Q.UI.Button({
                 fill: "white",
@@ -243,13 +275,46 @@ and open the template in the editor.
             x: Q.width/2, y: Q.height/2, fill: "rgba(0,0,0,0.5)"
           }));
 
-          var button = box.insert(new Q.UI.Button({ x: 0, y: 0, fill: "#CCCCCC",
-                                                   label: "Play Again" }))         
-          var label = box.insert(new Q.UI.Text({x:10, y: -10 - button.p.h, 
+          
+          if(stage.options.label === "¡Ganaste!")
+          {
+            var mainMenuButton = box.insert(new Q.UI.Button({ x: 0, y: 0, fill: "#CCCCCC",
+                                                   label: "Menu" }))
+
+            var label = box.insert(new Q.UI.Text({x:10, y: -30 - mainMenuButton.p.h, 
                                                 label: stage.options.label }));
-          button.on("click",function() {
-            window.location.href = '../racemath2/index.html';//window.location.replace("http://stackoverflow.com");//window.location.reload();
-          });
+
+            var timeLabel = box.insert(new Q.UI.Text({x:10, y: -10 - mainMenuButton.p.h, 
+                                                label: Q.state.get("tiempo") + " segundos" }));
+            
+            
+
+          }
+          else 
+          {
+            var button = box.insert(new Q.UI.Button({ x: 0, y: 0, fill: "#CCCCCC",
+                                                   label: "Volver a jugar" })) 
+            var mainMenuButton = box.insert(new Q.UI.Button({ x: 0, y: 10 + button.p.h, fill: "#CCCCCC",
+                                                   label: "Menu" })) 
+            var label = box.insert(new Q.UI.Text({x:10, y: -30 - button.p.h, 
+                                                label: stage.options.label }));
+
+            button.on("click",function() {
+              window.location.reload();//window.location.replace("http://stackoverflow.com");
+            });
+
+            mainMenuButton.on("click",function() {
+              window.location.href = '../../../index.html';//window.location.replace("http://stackoverflow.com");//window.location.reload();
+            });
+          }
+
+          
+
+          
+          
+          
+
+          
           box.fit(20);
         });
 
