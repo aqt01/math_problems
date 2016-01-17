@@ -74,12 +74,12 @@ Q.Sprite.extend("Box",{
     var player = Q("Player").first();
     this._super({
       x: player.p.x + Q.width ,// + 50,
-      y: levels[0],//Math.floor(Math.random() * 3)
-      frame: Math.floor((Math.random() * 4) + 0),//  Math.random() < 0.5 ? 1 : 0
+      y: levels[Math.floor(Math.random() * 3)],
+      frame: Math.floor((Math.random() * 10) + 0),//  Math.random() < 0.5 ? 1 : 0
       scale: 2,
       type: SPRITE_BOX,
       sheet: "numbers",
-      vx: 0,//-600 + 200 * Math.random(),
+      vx: -400 + 200 * Math.random(),
       vy: 0,
       ay: 0,
       theta: 0//(300 * Math.random() + 200) * (Math.random() < 0.5 ? 1 : -1)
@@ -216,9 +216,9 @@ Q.scene('hud',function(stage) {
   container.fit(20);
 });
 
-Q.load("player.json, player.png, background-wall.png, background-floor.png, numbers.png, numbers.json", function() {
+Q.load("player.json, player.png, background-wall.png, background-floor.png, numbs1-9.png, numbs1-9.json", function() {
     Q.compileSheets("player.png","player.json");
-    Q.compileSheets("numbers.png","numbers.json");
+    Q.compileSheets("numbs1-9.png","numbs1-9.json");
     Q.animations("player", {
       walk_right: { frames: [0,1,2,3,4,5,6,7,8,9,10], rate: 1/15, flip: false, loop: true },
       jump_right: { frames: [13], rate: 1/10, flip: false },
@@ -226,7 +226,7 @@ Q.load("player.json, player.png, background-wall.png, background-floor.png, numb
       duck_right: { frames: [15], rate: 1/10, flip: false },
     });
     Q.stageScene("level1");
-    Q.stageScene('hud', 3, Q('Player').first().p);
+    //Q.stageScene('hud', 3, Q('Player').first().p);
 
 
 });

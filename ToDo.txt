@@ -1,0 +1,8 @@
+link de github
+ampliar gama de numeros(runner)
+varientes del runner(ex: multiplos)
+velocidad jugadores(kar)
+parte activa mapa(kar)
+disenio del mundo(kar) 
+score tope(canno)
+score visible(canno)
