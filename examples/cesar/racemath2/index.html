@@ -54,11 +54,13 @@ and open the template in the editor.
               
               this.on("hit.sprite",function(collision) {
                   if(collision.obj.isA("Player")) {
-                    Q.stageScene("endGame",1, { label: "You Won!" }); 
+                    Q.stageScene("endGame",1, { label: "¡Ganaste!" }); 
+                    Q.state.set("HasWon", 1);
                     this.destroy();
                   }
                   else if(collision.obj.isA("Rival")) {
-                    Q.stageScene("endGame",1, { label: "Game Over" }); 
+                    Q.stageScene("endGame",1, { label: "Perdiste.." }); 
+                    Q.state.set("HasWon", 0);
                     this.destroy();
                   }
               });
