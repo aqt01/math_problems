@@ -1,0 +1,340 @@
+<!--
+To change this template, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, user-scalable=no" />
+        <title></title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <script src='lib/quintus.js'></script>
+        <script src='lib/quintus_sprites.js'></script>
+        <script src='lib/quintus_scenes.js'></script>
+        <script src='lib/quintus_input.js'></script>
+        <script src='lib/quintus_anim.js'></script>
+        <script src='lib/quintus_2d.js'></script>
+        <script src='lib/quintus_touch.js'></script>
+        <script src='lib/quintus_ui.js'></script>
+    </head>
+    <body style="background-color: black;">
+        <script>
+        var Q = Quintus()
+            .include("Sprites, Scenes, Input, 2D, Touch, UI")
+            .setup({maximize: true                
+            }).touch();            
+        
+        //configuration for math operations
+        Q.state.set({ operations_min: 0, operations_max: 99 });
+        
+        //values for collision detection
+        var SPRITE_NONE = 0;
+        var SPRITE_RACER = 1;
+        var SPRITE_OTHER = 2; 
+        
+        Q.Sprite.extend("Player",{
+            init: function(p) {
+              this._super(p, {
+                  sheet: "player",                   
+                  type: SPRITE_RACER,
+                  collisionMask: SPRITE_OTHER
+              });
+              this.add('2d');
+            },
+        });
+
+        Q.Sprite.extend("Girl", {
+            init: function(p) {
+              this._super(p, { 
+                  sheet: 'girl',
+                  type: SPRITE_OTHER,
+                  collisionMask: SPRITE_OTHER
+              });
+              this.add('2d');
+              
+              this.on("hit.sprite",function(collision) {
+                  if(collision.obj.isA("Player")) {
+                    Q.stageScene("endGame",1, { label: "¡Ganaste!" }); 
+                    Q.state.set("HasWon", 1);
+                    this.destroy();
+                  }
+                  else if(collision.obj.isA("Rival")) {
+                    Q.stageScene("endGame",1, { label: "Perdiste.." }); 
+                    Q.state.set("HasWon", 0);
+                    this.destroy();
+                  }
+              });
+            }
+        });
+        
+        Q.MovingSprite.extend("Rival", {
+            init: function(p) {
+              this._super(p, {
+                  type: SPRITE_RACER,
+                  collisionMask: SPRITE_OTHER
+              });
+              this.add('2d');              
+            },
+        });
+
+        Q.scene("level1",function(stage) {
+          stage.collisionLayer(new Q.TileLayer({ dataAsset: 'level_collision.json', sheet: 'tiles', type: SPRITE_OTHER }));
+          stage.insert(new Q.TileLayer({ dataAsset: 'level_background.json', sheet: 'tiles', type: SPRITE_NONE }));
+          
+          //rivals
+          var bluerival = stage.insert(new Q.Rival({ x: 160, y: 112, sheet:'bluerival', vx: 10}));
+          var purplerival = stage.insert(new Q.Rival({ x: 160, y: 112, sheet:'purplerival', vx: 10 }));
+          var greenrival = stage.insert(new Q.Rival({ x: 160, y: 112, sheet:'greenrival', vx: 10 }));
+          var mariorival = stage.insert(new Q.Rival({ x: 160, y: 112, sheet:'mariorival', vx: 10 }));
+
+         
+          
+          //girl
+          var girl = new Q.Girl({ x: 8000, y: 112, sheet:'girl'});
+          stage.insert(girl);
+          
+          //player
+          var player = stage.insert(new Q.Player({x: 160, y: 112, vx:10}));
+          stage.add("viewport").follow(player);
+          
+          //This updates the values of the vx of rivals every 3 seconds
+          setInterval(function() {
+            bluerival.p.vx += 7*Math.random();
+            purplerival.p.vx += 7*Math.random();
+            greenrival.p.vx += 7*Math.random();
+            mariorival.p.vx += 7*Math.random();
+
+            if(player.p.vx > 0)
+            {
+              player.p.vx -= 5;
+            }
+          }, 3000);
+
+        });
+        
+        //answer button
+        Q.UI.AnswButton = Q.UI.Button.extend('UI.AnswButton', {
+            init: function(p) {
+                this._super(Q._defaults(p, {
+                    fill: "#FFFFFF",
+                    border: 2,
+                    shadow: 3,
+                    shadowColor: "rgba(0,0,0,0.5)",
+                    w: 40,
+                    h: 40
+                }),                     
+                function() {
+                    var currAnsw;
+                    if(this.p.answerLabel.p.label === '') {
+                        currAnsw = 0;
+                    }
+                    else {
+                        currAnsw = parseInt(this.p.answerLabel.p.label);
+                    }
+                    
+                    if(currAnsw < 1000000000) {
+                        this.p.answerLabel.p.label = ""+(currAnsw*10+parseInt(this.p.label));
+                    }
+                        
+                }
+                );
+            }
+        });
+        
+        //question area
+        Q.UI.QuestionArea = Q.UI.Text.extend('UI.QuestionArea', {
+            init: function() {
+                this._super({
+                    color: "white",
+                    x: 0,
+                    y: 0
+                });
+            },
+            generate: function() {
+                this.p.num1 = Math.floor(Math.random() * Q.state.get('operations_max')) + Q.state.get('operations_min');
+                this.p.num2 = Math.floor(Math.random() * 10 + 0);
+                
+                //This recursivly calls the method is the substration is less than zero
+                if((this.p.num1-this.p.num2) >= 0)
+                {
+                  this.p.label = this.p.num1+' - '+this.p.num2;
+                } else { this.generate(); }
+            },
+            getAnswer: function() {
+                return this.p.num1-this.p.num2;
+            }
+        });
+        
+        
+        Q.scene("calculations",function(stage) {
+            
+            //current question
+            var qContainer = stage.insert(new Q.UI.Container({
+                fill: "gray",
+                x: 221,
+                y: 325,
+                border: 2,
+                shadow: 3,
+                shadowColor: "rgba(0,0,0,0.5)",
+                w: 140,
+                h: 50
+                })
+            );
+            
+            var question = stage.insert(new Q.UI.QuestionArea(),qContainer);
+            
+            question.generate();
+            
+            //answer area
+            var aContainer = stage.insert(new Q.UI.Container({
+                fill: "#438700",
+                x: 221,
+                y: 385,
+                border: 2,
+                shadow: 3,
+                shadowColor: "rgba(0,0,0,0.5)",
+                w: 140,
+                h: 50
+                })
+            );
+            
+            var answer = stage.insert(new Q.UI.Text({ 
+                    label: "",
+                    color: "white",
+                    x: 0,
+                    y: 0
+                  }),aContainer);
+            
+            var timeContainer = stage.insert(new Q.UI.Container({
+                fill: "#438700",
+                x: 150,
+                y: 150,
+                border: 2,
+                shadow: 3,
+                shadowColor: "rgba(0,0,0,0.5)",
+                w: 140,
+                h: 100
+                })
+            );
+
+            var time = stage.insert(new Q.UI.Text({ 
+                    label: "- -",
+                    color: "white",
+                    x: 0,
+                    y: 0,
+                  }),timeContainer);
+            console.log(time.p.label);
+          
+          //This updates the timer for the game
+          var count = 0;
+          setInterval(function() {
+            Q.state.set("tiempo", count);
+            time.p.label = count.toString();
+            count += 1;
+            console.log(time.p.label);
+          }, 1000);
+
+            //submit answer
+            var aButton = stage.insert(new Q.UI.Button({
+                fill: "white",
+                label: "Enter",
+                x: 221,
+                y: 445,
+                border: 2,
+                shadow: 3,
+                shadowColor: "rgba(0,0,0,0.5)",
+                w: 140,
+                h: 50
+                },
+                function() {
+                    //this lines compare the correct answer with the user's answer
+                    var isCorrect = parseInt(answer.p.label) == question.getAnswer();
+                    //This generates a new question for the user
+                    question.generate();
+                    //This cleans the answer's label
+                    answer.p.label = '';
+                    var player = Q("Player",0).first();
+                    
+                    //This condition sets the new velocity of the player if the answer is correct or not
+                    if(isCorrect) {                        
+                        player.p.vx += 15;
+                    }
+                    else {
+                        player.p.vx = Math.max(0, player.p.vx - 5);
+                    }
+                })
+            );
+            
+            //buttons
+            var i;
+            for(i=1;i<10;i++) {
+                (function(i) {
+                    stage.insert(
+                        new Q.UI.AnswButton({
+                            label: i+'',
+                            y: 275+Math.ceil(i/3)*45,
+                            x: 30+parseInt((i+2)%3)*45,
+                            answerLabel: answer
+                            }
+                        )
+                    );
+                })(i);
+                stage.insert(new Q.UI.AnswButton({
+                            label: '0',
+                            y: 275+4*45,
+                            x: 30+45,     
+                            answerLabel: answer
+                            }
+                        ));
+            } 
+        });
+
+        Q.scene('endGame',function(stage) {
+          var box = stage.insert(new Q.UI.Container({
+            x: Q.width/2, y: Q.height/2, fill: "rgba(0,0,0,0.5)"
+          }));
+
+          if(stage.options.label === "¡Ganaste!")
+          {
+            var mainMenuButton = box.insert(new Q.UI.Button({ x: 0, y: 0, fill: "#CCCCCC",
+                                                   label: "Menu" }))
+
+            var label = box.insert(new Q.UI.Text({x:10, y: -30 - mainMenuButton.p.h, 
+                                                label: stage.options.label }));
+
+            var timeLabel = box.insert(new Q.UI.Text({x:10, y: -10 - mainMenuButton.p.h, 
+                                                label: Q.state.get("tiempo") + " segundos" }));
+
+            mainMenuButton.on("click",function() {
+              window.location.href = '../index.html';//window.location.replace("http://stackoverflow.com");//window.location.reload();
+            });
+          }
+          else 
+          {
+            var button = box.insert(new Q.UI.Button({ x: 0, y: 0, fill: "#CCCCCC",
+                                                   label: "Volver a jugar" })) 
+            var mainMenuButton = box.insert(new Q.UI.Button({ x: 0, y: 10 + button.p.h, fill: "#CCCCCC",
+                                                   label: "Menu" })) 
+            var label = box.insert(new Q.UI.Text({x:10, y: -30 - button.p.h, 
+                                                label: stage.options.label }));
+
+            button.on("click",function() {
+              window.location.reload();
+            });
+
+            mainMenuButton.on("click",function() {
+              window.location.href = '../index.html';
+            });
+          }
+          box.fit(20);
+        });
+
+        Q.load("marioKartSprites.gif, marioKartSprites.json, level_collision.json, level_background.json, tiles.png", function() {
+          Q.sheet("tiles","tiles.png", { tilew: 32, tileh: 32 });
+          Q.compileSheets("marioKartSprites.gif","marioKartSprites.json");
+          Q.stageScene("level1");
+          Q.stageScene("calculations",1);
+        });
+        </script>
+    </body>
+</html>
