@@ -16,13 +16,15 @@ and open the template in the editor.
         <script src='lib/quintus_2d.js'></script>
         <script src='lib/quintus_touch.js'></script>
         <script src='lib/quintus_ui.js'></script>
+        <script src='lib/quintus_audio.js'></script>
     </head>
     <body style="background-color: black;">
         <script>
         var Q = Quintus()
             .include("Sprites, Scenes, Input, 2D, Touch, UI")
-            .setup({maximize: true                
-            }).touch();            
+            .setup({maximize: true})
+            .touch();
+            //.enableSound();
         
         //configuration for math operations
         Q.state.set({ operations_min: 0, operations_max: 10 });
@@ -332,6 +334,7 @@ and open the template in the editor.
           Q.compileSheets("marioKartSprites.gif","marioKartSprites.json");
           Q.stageScene("level1");
           Q.stageScene("calculations",1);
+          //Q.audio.play('02-circuit.mp3');
         });
         </script>
     </body>
