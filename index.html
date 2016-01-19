@@ -59,7 +59,7 @@
 							<span class="sdt_link"> Tapper </span>
 							<span class="sdt_descr"> Lowell Abbott</span>
 						</span>
-				
+
 				</li>
 				<ul id="sdt_menu" class="sdt_menu">
 				<li>
@@ -72,7 +72,21 @@
 							<span class="sdt_descr"> Cesar Contreras </span>
 						</span>
 				</li>
-
+        <!--<li>
+          <a href="#">
+          <img src="images/runner.png" alt=""/>
+          <span class="sdt_active"></span>
+          <span class="sdt_wrap">
+                      <span class="sdt_link"> Runners </span>
+                      <span class="sdt_descr"> </span>
+          </span>
+          </a>
+          <div class="sdt_box">
+            <a href="examples/runner/Pre-Alpha/">Pre-Alpha</a>
+            <a href="runner/Alpha(primo)/index.html"> Alpha(Primo) </a>
+            <a href="runner/Alpha(multiplo3)/">Alpha(Multiplo de 3)</a>
+          </div>
+        </li>--!>
                     <!--
 					<div class="sdt_box">
 							<a href="#">Websites</a>
@@ -141,8 +155,8 @@
         <script type="text/javascript">
             $(function() {
 				/**
-				* for each menu element, on mouseenter, 
-				* we enlarge the image, and show both sdt_active span and 
+				* for each menu element, on mouseenter,
+				* we enlarge the image, and show both sdt_active span and
 				* sdt_wrap span. If the element has a sub menu (sdt_box),
 				* then we slide it - if the element is the last one in the menu
 				* we slide it to the left, otherwise to the right
@@ -170,14 +184,14 @@
 							if($elem.parent().children().length == $elem.index()+1)
 								left = '-170px';
 							$sub_menu.show().animate({'left':left},200);
-						}	
+						}
 					});
 				}).bind('mouseleave',function(){
 					var $elem = $(this);
 					var $sub_menu = $elem.find('.sdt_box');
 					if($sub_menu.length)
 						$sub_menu.hide().css('left','0px');
-					
+
 					$elem.find('.sdt_active')
 						 .stop(true)
 						 .animate({'height':'0px'},300)
