@@ -1,4 +1,4 @@
-// # Quintus Touch and Drag Example
+// # Qeintus Touch and Drag Example
 //
 // [Run the example](../quintus/examples/touch/index.html)
 //
@@ -17,32 +17,38 @@ window.addEventListener('load',function() {
   //
   //
   //
-    Q.Sprite.extend("Player",{
-        init: function(p) {
-        this._super(p, {
-        strength: 100,
-        score: 0
-        }); 
-       }
+Q.Sprite.extend("Player",{
+  init: function(p) {
+    this._super(p, {
+      strength: 100,
+      score: 0,
     });
+  }
+});
 
 
 
-  Q.Sprite.extend("RandomShape", {
-     init: function(p) {
-       // Create a random shape (defined below)
-      p =this.createShape(p);
-       // Initialize the p hash
-       this._super(p);
+Q.Sprite.extend("Ball",{
+  init:function(p) {
+    this._super(p,{
+      asset: "ball.png",
+      color: "bla     ck",
+      x:Math.random()*Q.width,
+      y:Math.random()*Q.height,
+      h:60,
+      w:60,
+      vx: 50,
+      vy: -400,
 
-       // Listen for a drag events, sent by the
-       // touch module
-       this.on("drag");
-       this.on("touchEnd");
-     },
+    }); 
 
-     drag: function(touch) {
+     this.on("drag");
+     this.on("touchEnd");
+  },
+
+    drag: function(touch) {
        this.p.dragging = true;
+       //this.destroy()
        //this.p.x = touch.origX + touch.dx;
        //
        //this.p.y = touch.origY + touch.dy;
@@ -54,18 +60,277 @@ window.addEventListener('load',function() {
         this.destroy()
 //        stage.options.score+=1
      },
+step: function(dt) {
+        // Falling and rolling functions
+        this.p.y +=  ( Math.floor((Math.random() * 5) + 1)) ;
+        this.p.angle += 2 ;
+
+        
+        if(this.p.over) { 
+         this.p.scale = 1.2;
+       } else {
+         this.p.scale = 1.;
+       }
+
+        // Respawn from top
+        if(this.p.y>Q.height) {
+            this.p.y=0;
+            Q("Player").p.strength-10;
+        }
+                
+
+     }
+  });
+
+
+Q.Sprite.extend("Ball",{
+  init:function(p) {
+    this._super(p,{
+      asset: "ball2.png",
+      color: "black",
+      x:Math.random()*Q.width,
+      y:Math.random()*Q.height,
+      h:60,
+      w:60
+
+    }); 
+
+     this.on("drag");
+     this.on("touchEnd");
+  },
+
+    drag: function(touch) {
+       this.p.dragging = true;
+       //this.destroy()
+       //this.p.x = touch.origX + touch.dx;
+       //
+       //this.p.y = touch.origY + touch.dy;
+     },
+
+     touchEnd: function(touch) {
+       this.p.dragging = false;
+        //eliminate shape
+        this.destroy()
+//        stage.options.score+=1
+     },
+step: function(dt) {
+        // Falling and rolling functions
+        this.p.y +=  ( Math.floor((Math.random() * 5) + 1)) ;
+        this.p.angle += 2 ;
+
+        
+        if(this.p.over) { 
+         this.p.scale = 1.2;
+       } else {
+         this.p.scale = 1.;
+       }
+
+        // Respawn from top
+        if(this.p.y>Q.height) {
+            this.p.y=0;
+            Q("Player").p.strength-10;
+        }
+                
+
+     }
+  });
+
+/*
+Q.load(["ball2.png"],function() {
+  var ball = new Q.Ball();
+  Q.gameLoop(function(dt) {
+    ball.update(dt);
+    Q.clear();
+    ball.render(Q.ctx);
+  });
+});
+*/
+
+Q.Sprite.extend("Rectangle",{
+  init:function(p) {
+    this._super(p,{
+      //asset: "ball.png",
+      color: "black",
+      x:Math.random()*Q.width,
+      y:Math.random()*Q.height,
+      h:50,
+      w:80,
+      vx: 50,
+      vy: -400,
+
+    }); 
+
+     this.on("drag");
+     this.on("touchEnd");
+  },
+
+    drag: function(touch) {
+       this.p.dragging = true;
+       //this.destroy()
+       //this.p.x = touch.origX + touch.dx;
+       //
+       //this.p.y = touch.origY + touch.dy;
+     },
+
+     touchEnd: function(touch) {
+       this.p.dragging = false;
+        //eliminate shape
+        this.destroy()
+//        stage.options.score+=1
+     },
+step: function(dt) {
+        // Falling and rolling functions
+        this.p.y +=  ( Math.floor((Math.random() * 5) + 1)) ;
+        this.p.angle += 2 ;
+
+        
+        if(this.p.over) { 
+         this.p.scale = 1.2;
+       } else {
+         this.p.scale = 1.;
+       }
+
+        // Respawn from top
+        if(this.p.y>Q.height) {
+            this.p.y=0;
+            Q("Player").p.strength-10;
+        }
+                
+
+     }
+  });
+
+
+Q.Sprite.extend("Square",{
+  init: function(p) {
+    this._super(p,{
+      color: "red",
+      w: 50,
+      h: 50,
+      x:Math.random()*Q.width,
+      y:Math.random()*Q.height
+
+    });
+     this.on("drag");
+     this.on("touchEnd");
+  },
+    drag: function(touch) {
+       this.p.dragging = true;
+       //this.destroy()
+       //this.p.x = touch.origX + touch.dx;
+       //
+       //this.p.y = touch.origY + touch.dy;
+     },
+
+     touchEnd: function(touch) {
+       this.p.dragging = false;
+        //eliminate shape
+        console.log(this.p.n);
+        this.destroy();
+//        stage.options.score+=1
+     },
+step: function(dt) {
+        // Falling and rolling functions
+        this.p.y +=  ( Math.floor((Math.random() * 5) + 1)) ;
+        this.p.angle += 2 ;
+
+        
+        if(this.p.over) { 
+         this.p.scale = 1.2;
+       } else {
+         this.p.scale = 1.;
+       }
+
+        // Respawn from top
+        if(this.p.y>Q.height) {
+            this.p.y=0;
+            Q("Player").p.strength-10;
+        }
+                
+
+     }
+  });
+
+
+  Q.Sprite.extend("RandomShape", {
+     init: function(p) {
+       n = Math.floor(Math.random()*3)+1;
+      
+      if (n==1) {
+       this._super(p,{
+      color: "red",
+      w: 50,
+      h: 50,
+      x:Math.random()*Q.width,
+      y:Math.random()*Q.height,
+      n:n
+
+    });
+
+     }
+     else if (n==2) {
+       this._super(p,{
+      //asset: "ball.png",
+      color: "black",
+      x:Math.random()*Q.width,
+      y:Math.random()*Q.height,
+      h:50,
+      w:80,
+      vx: 50,
+      vy: -400,
+      n:n
+
+    }); 
+      
+      } 
+      else if (n==3) { 
+ // Create a random shape (defined below)
+      p =this.createShape(p);
+       this._super(p);
+      }
+      // Initialize the p hash
+      
+
+       // Listen for a drag events, sent by the
+       // touch module
+       this.on("drag");
+       this.on("touchEnd");
+     },
+
+     drag: function(touch) {
+       this.p.dragging = true;
+       //this.destroy()
+       //this.p.x = touch.origX + touch.dx;
+       //
+       //this.p.y = touch.origY + touch.dy;
+     },
+
+     touchEnd: function(touch) {
+       this.p.dragging = false;
+        //eliminate shape
+        this.destroy();
+
+        console.log(""+this.p.n);
+
+       // console.log(""+Q.stageScene("hud").items[0].p.strength);
+        //Q.stageScene("hud").items[0].p.strength=Q.stageScene("hud").items[0].p.strength-10
+//        stage.options.score+=1
+     },
 
      createShape: function(p) {
         var angle = Math.random()*2*Math.PI,
-            numPoints = 3 + Math.floor(Math.random()*15),
+            numPoints = 3 ,
             minX = 0, maxX = 0,
             minY = 0, maxY = 0,
             curX, curY,
             dy = -10
         p = p || {};
         p.points = [];
-
-        var startAmount = 40;
+        x: 0; 
+        y: 300;
+        vx: 50;
+        vy: -400;
+       var startAmount = 40;
 
         for(var i = 0;i < numPoints;i++) {
           curX = Math.floor(Math.cos(angle)*startAmount);
@@ -82,6 +347,7 @@ window.addEventListener('load',function() {
           startAmount += Math.floor(Math.random()*10);
           angle += (Math.PI * 2) / (numPoints+1);
         };
+
 
         maxX += 30;
         minX -= 30;
@@ -103,8 +369,12 @@ window.addEventListener('load',function() {
         p.cy = p.h/2;
         p.angle = angle;
         p.type = 1;
+        p.vx=50;
+        p.vy=-400;
+       
        return p;
-     },
+       
+               },
 
 
 
@@ -119,8 +389,7 @@ window.addEventListener('load',function() {
         this.p.angle += 2 ;
 
         
-        if(this.p.over) {
-
+        if(this.p.over) { 
          this.p.scale = 1.2;
        } else {
          this.p.scale = 1.;
@@ -129,6 +398,7 @@ window.addEventListener('load',function() {
         // Respawn from top
         if(this.p.y>Q.height) {
             this.p.y=0;
+          
         }
                 
 
@@ -159,31 +429,41 @@ window.addEventListener('load',function() {
   var numShapes = 10;
 
 Q.scene('hud',function(stage) {
+  var player1= stage.insert(new Q.Player());
+  
   var container = stage.insert(new Q.UI.Container({
     x: 50, y: 0
   }));
 
   var label = container.insert(new Q.UI.Text({x:20, y: 60,
-    label: "Score: "+stage.options.score , color: "red" }));
+    label: "Score: "+ player1.p.score, color: "red" }));
+
 
   var strength = container.insert(new Q.UI.Text({x:20, y: 20,
-    label: "Health: " + '%', color: "red" }));
+    label: "Health: " +player1.p.strength+ '%', color: "red" }));
 
   container.fit(60);
 });
 
   // Scene that actually adds shapes onto the stage 
  Q.scene("start",new Q.Scene(function(stage) {
+   var shapesLeft = numShapes;
 
-    var shapesLeft = numShapes;
-    while(shapesLeft-- > 0) {
+   while(shapesLeft-- > 0) {
       stage.insert(new Q.RandomShape());
+     // stage.insert(new Q.Square());
+     // stage.insert(new Q.Rectangle());
+
+     // stage.insert(new Q.Ball());
+      
     }
   }));
 
   // Finally call `stageScene` to start the show
   Q.stageScene("start");
-  Q.stageScene('hud',3);
+ // Q.stageScene('hud',3);
+
+ Q.stageScene('hud', 3);
   // Render the elements
   // Turning Q.debug and Q.debugFill on will render
   // the sprites' collision meshes, which is all we want
